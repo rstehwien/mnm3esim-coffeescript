@@ -1,0 +1,8 @@
+--compilers coffee:coffee-script
+--require chai 
+--colors
+--reporter dot
+--ui bdd
+--colors
+--recursive
+--debug
