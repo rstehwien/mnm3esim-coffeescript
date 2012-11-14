@@ -77,7 +77,7 @@ class CakeUtils
 		# Manually unpack arguments.
 		argsLen   = allArgs.length
 		cmd       = if _.isArray allArgs[0] then allArgs[0].join " " else allArgs[0]
-		opts      = if argsLen is 3 then allArgs[1] else {}
+		opts      = _.extend {stdio: 'inherit'}, (if argsLen is 3 then allArgs[1] else {})
 		callback  = if argsLen > 1 then allArgs[argsLen - 1] else null
 		callback  = @printCallback unless callback
 
