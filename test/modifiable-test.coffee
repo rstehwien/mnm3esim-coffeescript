@@ -1,4 +1,4 @@
-Modifiable = require('../src/modifiable.coffee').Modifiable
+{Modifiable} = require('../src/modifiable.coffee')
 
 describe "Modifiable", ->
 
