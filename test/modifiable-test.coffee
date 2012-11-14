@@ -21,4 +21,38 @@ describe "Modifiable", ->
     m.elvis = 'Hips'
     expect(m.jagger).to.equal 'Lips'
     expect(m.elvis).to.equal 'Hips'
-    
+
+  it "Should use modifiers", ->
+    m = new Modifiable {jagger: "Rock", elvis: "Roll"}
+    m.addModifier 'jagger', (v) -> "Lip #{v}"
+    expect(m.jagger).to.equal 'Lip Rock'
+    expect(m.elvis).to.equal 'Roll'
+
+  it "Should use 'ALL' modifier", ->
+    m = new Modifiable {jagger: "Rock", elvis: "Roll"}
+    m.addModifier 'ALL', (v) -> "Ready to #{v}"
+    expect(m.jagger).to.equal 'Ready to Rock'
+    expect(m.elvis).to.equal 'Ready to Roll'
+
+  it "Should should be able to clear specific modifier", ->
+    m = new Modifiable {jagger: "Rock", elvis: "Roll"}
+    m.addModifier 'jagger', (v) -> "Lip #{v}"
+    m.addModifier 'elvis', (v) -> "Hip #{v}"
+    expect(m.jagger).to.equal 'Lip Rock'
+    expect(m.elvis).to.equal 'Hip Roll'
+
+    m.clearModifiers 'jagger'
+    expect(m.jagger).to.equal 'Rock'
+    expect(m.elvis).to.equal 'Hip Roll'
+
+
+  it "Should should be able to clear all modifiers", ->
+    m = new Modifiable {jagger: "Rock", elvis: "Roll"}
+    m.addModifier 'jagger', (v) -> "Lip #{v}"
+    m.addModifier 'elvis', (v) -> "Hip #{v}"
+    #expect(m.jagger).to.equal 'Lip Rock'
+    #expect(m.elvis).to.equal 'Hip Roll'
+
+    m.clearAllModifiers()
+    expect(m.jagger).to.equal 'Rock'
+    expect(m.elvis).to.equal 'Roll'
