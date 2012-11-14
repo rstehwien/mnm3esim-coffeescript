@@ -52,7 +52,7 @@ describe "Modifiable", ->
     #expect(m.jagger).to.equal 'Lip Rock'
     #expect(m.elvis).to.equal 'Hip Roll'
 
-    m.clearAllModifiers()
+    m.clearModifiers()
     expect(m.jagger).to.equal 'Rock'
     expect(m.elvis).to.equal 'Roll'
 

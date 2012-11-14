@@ -25,9 +25,11 @@ class Modifiable
       @_modifiers[k] ?= []
       @_modifiers[k].push m
 
-    clearAllModifiers: -> @_modifiers = {}
-
-    clearModifiers: (k) -> @_modifiers[k] = []
+    clearModifiers: (k) -> 
+      if k?
+        @_modifiers[k] = []
+      else
+        @clearModifiers(key) for own key, value of @_modifiers
 
 
 module.exports =
