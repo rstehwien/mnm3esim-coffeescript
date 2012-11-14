@@ -77,13 +77,13 @@ class CakeUtils
 		# Manually unpack arguments.
 		argsLen   = allArgs.length
 		cmd       = if _.isArray allArgs[0] then allArgs[0].join " " else allArgs[0]
-		opts      = _.extend {stdio: 'inherit'}, (if argsLen is 3 then allArgs[1] else {})
+		opts      = if argsLen is 3 then allArgs[1] else {}
 		callback  = if argsLen > 1 then allArgs[argsLen - 1] else null
 		callback  = @printCallback unless callback
 
 		@print cmd
 		child_proc.exec cmd, opts, (error, stdout, stderr) ->
-			if error
+			if error?
 				console.error error.stack
 			else
 				process.stderr.write stderr if stderr
@@ -154,7 +154,6 @@ class CakeUtils
 		@print "Start Watching #{@src_path} and test"
 		watch.add(@src_path).add("test").onChange (path, prev, cur) =>
 			@print "detected changes on #{path}"
-			#@test => console.log("tested")
 			invoke "test"
 		
 
