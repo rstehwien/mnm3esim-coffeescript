@@ -58,15 +58,13 @@ class CakeUtils
 		argsLen   = allArgs.length
 		cmd       = if _.isArray allArgs[0] then allArgs[0][0] else allArgs[0]
 		args      = if _.isArray allArgs[0] then allArgs[0][1..] else []
-		opts      = if argsLen is 3 then allArgs[1] else {}
+		opts      = _.extend {stdio: 'inherit'}, (if argsLen is 3 then allArgs[1] else {})
 		callback  = if argsLen > 2 then allArgs[argsLen - 1] else null
 
 		cmd = which?.sync(cmd)
 
 		@print [cmd, args.join " "].join " "
 		ps = child_proc.spawn cmd, args, opts
-		ps.stdout.pipe process.stdout
-		ps.stderr.pipe process.stderr
 		ps.on "exit", callback if callback
 
 	# Exec with log hooks to stdout, stderr.
@@ -145,7 +143,7 @@ class CakeUtils
 
 	@test: (callback) =>
 		@print "Run mocha tests in ./test using ./test/mocha.opts"
-		@exec "mocha", callback
+		@spawn "mocha", callback
 
 	@docs: (callback) =>
 		args = "#{@src_path}/*.coffee"
