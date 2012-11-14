@@ -1,5 +1,6 @@
 --compilers coffee:coffee-script
---require chai 
+--require chai
+--require test/test-helper.coffee
 --colors
 --reporter dot
 --ui bdd

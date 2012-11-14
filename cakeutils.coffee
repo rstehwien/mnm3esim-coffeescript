@@ -1,12 +1,12 @@
 child_proc = require 'child_process'
 path       = require 'path'
-fs = require 'fs'
+fs         = require 'fs'
 
-which = require 'which'
 _      = require 'underscore'
 async  = require 'async'
 colors = require 'colors'
-which = require 'which'
+which  = require 'which'
+watch  = require 'nodewatch'
 
 # Colors configuration
 colors.setTheme
@@ -151,6 +151,12 @@ class CakeUtils
 		args = "#{@src_path}/*.coffee"
 		@print "Create documents from #{args}"
 		@exec "docco  #{args}", callback
+
+	@watch: (callback) =>
+		@print "Start Watching #{@src_path} and test"
+		watch.add(src_path).add("test").onChange (path, prev, cur) ->
+			@print "detected changes on #{path}"
+		
 
 	# ----------------------------------
 	# Quick Tasks
