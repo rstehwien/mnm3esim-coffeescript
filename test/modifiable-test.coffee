@@ -45,7 +45,6 @@ describe "Modifiable", ->
     expect(m.jagger).to.equal 'Rock'
     expect(m.elvis).to.equal 'Hip Roll'
 
-
   it "Should should be able to clear all modifiers", ->
     m = new Modifiable {jagger: "Rock", elvis: "Roll"}
     m.addModifier 'jagger', (v) -> "Lip #{v}"
@@ -56,3 +55,10 @@ describe "Modifiable", ->
     m.clearAllModifiers()
     expect(m.jagger).to.equal 'Rock'
     expect(m.elvis).to.equal 'Roll'
+
+
+  it "Should chain modifiers", ->
+    m = new Modifiable {jagger: "Rock", elvis: "Roll"}
+    m.addModifier 'jagger', (v) -> "Lip #{v}"
+    m.addModifier 'jagger', (v) -> "Big #{v}"
+    expect(m.jagger).to.equal 'Big Lip Rock'
