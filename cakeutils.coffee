@@ -152,10 +152,12 @@ class CakeUtils
 		@print "Create documents from #{args}"
 		@exec "docco  #{args}", callback
 
-	@watch: (callback) =>
+	@watchTest: =>
 		@print "Start Watching #{@src_path} and test"
-		watch.add(src_path).add("test").onChange (path, prev, cur) ->
+		watch.add(@src_path).add("test").onChange (path, prev, cur) =>
 			@print "detected changes on #{path}"
+			#@test => console.log("tested")
+			invoke "test"
 		
 
 	# ----------------------------------

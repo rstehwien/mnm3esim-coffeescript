@@ -56,7 +56,6 @@ describe "Modifiable", ->
     expect(m.jagger).to.equal 'Rock'
     expect(m.elvis).to.equal 'Roll'
 
-
   it "Should chain modifiers", ->
     m = new Modifiable {jagger: "Rock", elvis: "Roll"}
     m.addModifier 'jagger', (v) -> "Lip #{v}"

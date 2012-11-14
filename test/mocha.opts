@@ -1,9 +1,9 @@
 --compilers coffee:coffee-script
+--require coffee-script
 --require chai
 --require test/test-helper.coffee
 --colors
 --reporter dot
---ui bdd
---colors
+--ui tdd
 --recursive
 --debug

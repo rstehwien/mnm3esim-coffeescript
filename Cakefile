@@ -22,3 +22,6 @@ task 'test', "Run tests", ->
 task 'docs', 'Generate annotated source code with Docco', ->
   cu.tdocs()
 
+task 'watch:test', "Watch for changes and run tests", ->
+  cu.watchTest()
+
