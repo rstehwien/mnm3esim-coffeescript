@@ -88,15 +88,15 @@ describe "Modifiable", ->
 
   it "Should roll between 3 and 22", ->
     m = new Modifiable
-    m.addModifier 'rollD20', (v) -> (v + 2)
+    m.addModifier 'rollCheck', (v) -> (v + 2)
     for i in [1...10000]
-      expect(m.rollD20()).to.be.within(3, 22)
+      expect(m.rollCheck()).to.be.within(3, 22)
 
   it "Should roll between -1 and 18 using ALL", ->
     m = new Modifiable
     m.addModifier 'ALL', (v) -> (v - 2)
     for i in [1...10000]
-      expect(m.rollD20()).to.be.within(-1, 18)
+      expect(m.rollCheck()).to.be.within(-1, 18)
 
   it "Should get the right degree", ->
     m = new Modifiable

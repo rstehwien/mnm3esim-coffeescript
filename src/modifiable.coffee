@@ -41,8 +41,8 @@ class Modifiable
       else
         @clearModifiers(key) for own key, value of @_modifiers
 
-    rollD20: (bonus=0) =>
-      @_applyModifiers 'rollD20', utils.rollD20(bonus)
+    rollCheck: (bonus=0) =>
+      @_applyModifiers 'rollCheck', utils.rollD20(bonus)
 
     checkDegree: (difficulty, check) ->
       utils.checkDegree difficulty, check
