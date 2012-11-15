@@ -4,6 +4,6 @@
 --require test/test-helper.coffee
 --colors
 --reporter dot
---ui tdd
+--ui bdd
 --recursive
 --debug

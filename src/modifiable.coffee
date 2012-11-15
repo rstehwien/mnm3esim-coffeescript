@@ -1,4 +1,3 @@
-_ = require 'underscore'
 {utils} = require './utils.coffee'
 
 class Modifiable
