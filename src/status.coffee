@@ -1,6 +1,11 @@
 _ = require 'underscore'
 
+class StatusModifier
+  constructor: (@group, @property, @modifier, @description) ->
+
 class Status
+  @STATUSES: null
+
   constructor: (value = {}) ->
     def = 
       key: 'normal'
@@ -18,11 +23,63 @@ class Status
 
     Status.STATUSES[@key] = this
 
-  @STATUSES = null
+  @getStatus: (s) ->
+    if s instanceof Status
+      s
+    else if _.isString s
+      v = Status.STATUSES[s]
+      throw new Error "Invalid status '#{s}'" if not v?
+      v
+    else
+      null
+    
+  @combinedStatus: (value) ->
+    statuses = Status._doExpandStatuses(value)
+
+    modifiers = []
+    degrees = []
+    for own k, status of statuses
+      degrees.push(status.degree)
+      modifiers.push new StatusModifier m... for m in status.modifiers when _.isArray m if _.isArray status.modifiers
+
+    max = if degrees.length > 0 then Math.max degrees... else 0   
+
+    {'statuses': statuses, 'modifiers': modifiers, 'degree': max}
+
+  @expandStatuses: (value) ->
+    Status.combinedStatus(value)['statuses']
+
+  @allModifiers: (value) ->
+     Status.combinedStatus(value)['modifiers']
+
+  @degree: (value) ->
+    Status.combinedStatus(value)['degree']
+
+  @_doExpandStatuses: (value) ->
+    value = _.values value if _.isObject value and not _.isArray value and not _.isFunction value
+    value = [value] if not _.isArray value
+    result = {}
+    for v in value
+      status = Status.getStatus v
+      continue if not status? or result[status.key]?
+
+      result[status.key] = status
+      result = _.extend result, Status._doExpandStatuses(status.modifiers) if _.isArray status.modifiers
+ 
+    # remove any we replace
+    replacing = v.replace for own k, v of result when v.replace?
+    delete result[r] for r in _.flatten replacing if replacing?
+
+    # add normal if empty
+    result['normal'] = Status.getStatus 'normal' if _.keys(result).length < 1
+    # remove normal if more than one result
+    delete result['normal'] if result['normal']? and _.keys(result).length > 1
+
+    result
 
   @_init: ->
-    return if @STATUSES isnt null
-    @STATUSES = {}
+    return if Status.STATUSES isnt null
+    Status.STATUSES = {}
 
     # ALL STANDARD STATUSES
     standardStatuses = [
@@ -330,3 +387,4 @@ Status._init()
 
 module.exports =
   Status: Status
+  StatusModifier: StatusModifier
