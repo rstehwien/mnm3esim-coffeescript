@@ -1,5 +1,11 @@
 {Modifiable} = require('../src/modifiable.coffee')
 
+class Rockers extends Modifiable
+  constructor: (values) ->
+    modifiable = {jagger: "Rock", elvis: "Roll"}
+    properties = {chuck: "Balls of Fire"}
+    super modifiable, properties, values
+
 describe "Modifiable", ->
 
   it "Should add the properties", ->
@@ -103,3 +109,23 @@ describe "Modifiable", ->
     expect(m.checkDegree 13, 10).to.equal -1
     expect(m.checkDegree 19, 19).to.equal 1
 
+  it "Should rockers subclass defaults", ->
+    m = new Rockers
+    expect(m.jagger).to.equal 'Rock'
+    expect(m.elvis).to.equal 'Roll'
+    expect(m.chuck).to.equal 'Balls of Fire'
+
+  it "Should be able to set rockers values", ->
+    m = new Rockers {chuck: "Piano", elvis: "Hips", jagger: "Lips"}
+    expect(m.jagger).to.equal 'Lips'
+    expect(m.elvis).to.equal 'Hips'
+    expect(m.chuck).to.equal 'Piano'
+
+  it "Should be default rocker values when setting one", ->
+    m = new Rockers {elvis: "Hips"}
+    expect(m.jagger).to.equal 'Rock'
+    expect(m.elvis).to.equal 'Hips'
+    expect(m.chuck).to.equal 'Balls of Fire'
+
+  it "Should be throw error for invalid property", ->
+    expect(-> new Rockers {dio: "Holy Diver"}).to.throw 'Invalid property \'dio\''

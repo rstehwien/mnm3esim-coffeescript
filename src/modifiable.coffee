@@ -1,9 +1,10 @@
 {utils} = require './utils.coffee'
 
 class Modifiable
-    constructor:  (modifiable, values) ->
+    constructor:  (modifiable, properties, values) ->
       @_modifiers = {}
       @_modifiable modifiable
+      @_properties properties
       @_values values
 
     _modifiable: (obj) ->
@@ -16,9 +17,15 @@ class Modifiable
             enumerable: true
             configurable: true
 
+    _properties: (obj) ->
+      if obj? then for own k, v of obj
+        do (k, v) =>
+          @[k] = v
+
     _values: (obj) ->
       if obj? then for own k, v of obj
         do (k, v) =>
+          throw new Error "Invalid property \'#{k}\'" if not Object::hasOwnProperty.call(this, k)
           @[k] = v
 
     _applyModifiers: (k, v) =>

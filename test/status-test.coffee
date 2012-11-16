@@ -22,7 +22,7 @@ describe "Status", ->
     expect(_.keys s).to.be.equivalentArray(['disabled'])
 
   it "Should throw error for invalid status", ->
-    expect(-> Status.expandStatuses('smeggle')).to.throw Error, 'Invalid status \'smeggle\''
+    expect(-> Status.expandStatuses('smeggle')).to.throw 'Invalid status \'smeggle\''
 
   it "Should expand incapacitated", ->
     s = Status.expandStatuses(['incapacitated'])
