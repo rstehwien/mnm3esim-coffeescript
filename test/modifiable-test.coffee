@@ -34,12 +34,6 @@ describe "Modifiable", ->
     expect(m.jagger).to.equal 'Lip Rock'
     expect(m.elvis).to.equal 'Roll'
 
-  it "Should use 'ALL' modifier", ->
-    m = new Modifiable {jagger: "Rock", elvis: "Roll"}
-    m.addModifier 'ALL', (v) -> "Ready to #{v}"
-    expect(m.jagger).to.equal 'Ready to Rock'
-    expect(m.elvis).to.equal 'Ready to Roll'
-
   it "Should should be able to clear specific modifier", ->
     m = new Modifiable {jagger: "Rock", elvis: "Roll"}
     m.addModifier 'jagger', (v) -> "Lip #{v}"
@@ -82,27 +76,14 @@ describe "Modifiable", ->
 
   it "Should should not modify (unmoifiable) values", ->
     m = new Modifiable {jagger: "Rock", elvis: "Roll"}, {elvis: 'Hips', dio: 'Heavy'}
-    m.addModifier 'ALL', (v) -> "Ready to #{v}"
-    expect(m.jagger).to.equal 'Ready to Rock'
-    expect(m.elvis).to.equal 'Ready to Hips'
+    expect(-> m.addModifier 'dio', (v) -> "Great #{v}").to.throw '\'dio\' cannot be modified'
     expect(m.dio).to.equal 'Heavy'
-
-    m.addModifier 'dio', (v) -> 'Holy Diver #{v}'
-    expect(m.dio).to.equal 'Heavy'
-    m.dio = 'Holy Diver'
-    expect(m.dio).to.equal 'Holy Diver'
 
   it "Should roll between 3 and 22", ->
     m = new Modifiable
     m.addModifier 'rollCheck', (v) -> (v + 2)
     for i in [1...10000]
       expect(m.rollCheck()).to.be.within(3, 22)
-
-  it "Should roll between -1 and 18 using ALL", ->
-    m = new Modifiable
-    m.addModifier 'ALL', (v) -> (v - 2)
-    for i in [1...10000]
-      expect(m.rollCheck()).to.be.within(-1, 18)
 
   it "Should get the right degree", ->
     m = new Modifiable
@@ -126,6 +107,12 @@ describe "Modifiable", ->
     expect(m.jagger).to.equal 'Rock'
     expect(m.elvis).to.equal 'Hips'
     expect(m.chuck).to.equal 'Balls of Fire'
+
+  it "Should be to modify modifiable", ->
+    m = new Rockers {elvis: "Hips"}
+    m.addModifier 'jagger', (v) -> "Lip #{v}"
+    expect(m.jagger).to.equal 'Lip Rock'
+    expect(-> m.addModifier 'chuck', (v) -> "Great #{v}").to.throw '\'chuck\' cannot be modified'
 
   it "Should be throw error for invalid property", ->
     expect(-> new Rockers {dio: "Holy Diver"}).to.throw 'Invalid property \'dio\''

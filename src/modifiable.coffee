@@ -2,7 +2,7 @@
 
 class Modifiable
     constructor:  (modifiable, properties, values) ->
-      @_modifiers = {}
+      @_modifiers = {rollCheck: []}
       @_modifiable modifiable
       @_properties properties
       @_values values
@@ -10,6 +10,7 @@ class Modifiable
     _modifiable: (obj) ->
       if obj? then for own k, v of obj
         do (k, v) =>
+          @_modifiers[k] = []
           @["_#{k}"] = v
           Object.defineProperty @, k,
             get: -> @_applyModifiers k, @["_#{k}"]         
@@ -19,8 +20,7 @@ class Modifiable
 
     _properties: (obj) ->
       if obj? then for own k, v of obj
-        do (k, v) =>
-          @[k] = v
+        do (k, v) => @[k] = v
 
     _values: (obj) ->
       if obj? then for own k, v of obj
@@ -29,21 +29,16 @@ class Modifiable
           @[k] = v
 
     _applyModifiers: (k, v) =>
-      modifiers = []
-      Array::push.apply modifiers, @_modifiers[k] if  @_modifiers[k]?
-      Array::push.apply modifiers, @_modifiers['ALL'] if  @_modifiers['ALL']?
-
-      for m in modifiers
-        v = m.call(this, v)
+      v = m.call(this, v) for m in @_modifiers[k] if @_modifiers[k]?
       v
 
     addModifier: (k, m) ->
-      @_modifiers[k] ?= []
+      throw new Error "'#{k}' cannot be modified" if not @_modifiers[k]?
       @_modifiers[k].push m
 
     clearModifiers: (k) -> 
       if k?
-        @_modifiers[k] = []
+        @_modifiers[k] = [] if @_modifiers[k]?
       else
         @clearModifiers(key) for own key, value of @_modifiers
 
