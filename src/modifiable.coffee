@@ -1,4 +1,5 @@
 {utils} = require './utils.coffee'
+_ = require 'underscore'
 
 class Modifiable
     constructor:  (modifiable, properties, values) ->
@@ -6,6 +7,7 @@ class Modifiable
       @_modifiable modifiable
       @_properties properties
       @_values values
+      @uid = _.uniqueId "uid_" #for use as object keys
 
     _modifiable: (obj) ->
       if obj? then for own k, v of obj

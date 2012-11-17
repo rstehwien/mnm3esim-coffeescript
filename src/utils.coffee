@@ -1,3 +1,5 @@
+_ = require 'underscore'
+
 class Utils
   @rollD20: (bonus=0) ->
     Math.floor(Math.random() * 20) + 1 + bonus
@@ -10,6 +12,14 @@ class Utils
     isNeg = degree < 0
     degree += inc
     if isNeg and degree >= 0 then degree + 1 else degree
+
+  @makeArray: (obj) ->
+    if not obj? 
+      return []
+    else if _.isArray obj
+      return obj
+    else
+      return [obj]
 
 module.exports =
   utils: Utils
