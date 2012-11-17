@@ -24,6 +24,8 @@ class Defense extends Modifiable
 
   resistHit: (hit, stress) ->
     resist = new ResistResult {defense: this}
+    # return completely successful resist if missed
+    return resist if hit.degree < 1
 
     damage = hit.damage
 

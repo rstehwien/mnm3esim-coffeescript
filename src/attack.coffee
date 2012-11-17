@@ -10,7 +10,7 @@ class AttackResult extends Modifiable
       d20             : 0
       roll            : 0
       isCrit          : false
-      degree          : 1 # successful attack by default
+      degree          : -1 # failed attack by default
 
     super null, properties, values
 
@@ -79,6 +79,43 @@ class Attack extends Modifiable
   statusByDegree: (degree) ->
     return Status.getStatus 'normal' if degree < 1
     Status.getStatus @statuses[Math.min(degree, @statuses.length) - 1]
+
+  attack: (defense) ->
+    # create basic miss
+    hit = new AttackResult {attack: this, degree: -1}
+
+    # if perception attack; return a basic hit
+    if @isPerceptionAttack
+      hit.degree = 1
+      return hit
+
+    hit.d20 = @rollCheck()
+    hit.roll = hit.d20 + @bonus
+
+    # roll of 1 automatically misses
+    return hit if hit.d20 is 1
+
+    hit.degree = @checkDegree(defense.value+10, hit.roll)
+
+    # crit if you hit and got the min_crit or better
+    hit.isCrit = (hit.degree > 0 and hit.d20 >= @minCrit)
+
+    # guaranteed hit if you rolled a 20
+    hit.degree = 1 if (hit.d20 is 20 and hit.degree < 1)
+
+    # if hit degree < 0 we have missed
+    return hit if hit.degree < 0
+
+    # crit bumps the damage and impervious up by 5
+    if hit.isCrit
+      hit.damage += 5
+      hit.damageImpervious += 5
+
+    # multi-attack bumps up by 5 or 2 but not damage_impervious
+    if @isMultiattack and hit.degree > 1
+      hit.damage += (if hit.degree >= 3 then 5 else 2)
+
+    return hit
   
 module.exports =
   Attack:       Attack
