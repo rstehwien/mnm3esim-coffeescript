@@ -1,6 +1,6 @@
 {Character} = require('../src/character.coffee')
 
-describe "Status", ->
+describe "Character", ->
 
   it "Should have defaults", ->
     c = new Character

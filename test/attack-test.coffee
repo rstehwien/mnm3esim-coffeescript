@@ -1,6 +1,6 @@
 {Attack, AttackResult} = require('../src/attack.coffee')
 
-describe "Status", ->
+describe "Attack", ->
 
   it "Should have defaults", ->
     a = new Attack

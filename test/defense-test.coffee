@@ -1,6 +1,7 @@
 {Defense, ResistResult} = require('../src/defense.coffee')
+{AttackResult} = require('../src/attack.coffee')
 
-describe "Status", ->
+describe "Defense", ->
 
   it "Should have defaults", ->
     m = new Defense
