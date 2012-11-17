@@ -26,7 +26,7 @@ describe "Status", ->
 
   it "Should expand incapacitated", ->
     s = Status.expandStatuses(['incapacitated'])
-    expect(_.keys s).to.be.equivalentArray(['incapacitated', 'defenseless', 'stunned', 'actionNone', 'unaware', 'prone', 'hindered'])
+    expect(_.keys s).to.be.equivalentArray(['defenseless', 'incapacitated', 'stunned', 'actionNone', 'unaware', 'prone', 'hindered'])
 
   it "Should have the right modifiers in incapacitated", ->
     m = Status.allModifiers(['incapacitated'])
