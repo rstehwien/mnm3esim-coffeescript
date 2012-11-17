@@ -1,7 +1,7 @@
 {Modifiable} = require './modifiable.coffee'
 
 class Character extends Modifiable
-  constructor: (values) ->
+  constructor: (values={}) ->
     modifiable =
       initiative  : 0,
       actions     : 'full',

@@ -12,7 +12,7 @@ describe "Defense", ->
     expect(@d.impervious).to.be.null
 
   it "Should have bounce if impervious", ->
-    a = new Attack
+    a = Attack.createDamage()
     hit = new AttackResult {attack: a}
 
     @d.addModifier 'rollCheck', (x) -> 1 #worst roll for defense
@@ -21,7 +21,7 @@ describe "Defense", ->
     expect(resist.degree).to.be.equal 4
 
   it "Should totally save on a roll of 15", ->
-    a = new Attack
+    a = Attack.createDamage()
     hit = new AttackResult {attack: a}
 
     @d.addModifier 'rollCheck', (x) -> 15
@@ -33,7 +33,7 @@ describe "Defense", ->
     expect(resist.status.key).to.be.equal 'normal'
 
   it "Should totally save and bump success degree up on a roll of 20", ->
-    a = new Attack
+    a = Attack.createDamage()
     hit = new AttackResult {attack: a}
 
     @d.addModifier 'rollCheck', (x) -> 20
@@ -45,7 +45,7 @@ describe "Defense", ->
     expect(resist.status.key).to.be.equal 'normal'
 
   it "Should take one stress on a roll of 10", ->
-    a = new Attack
+    a = Attack.createDamage()
     hit = new AttackResult {attack: a}
 
     @d.addModifier 'rollCheck', (x) -> 10
@@ -57,7 +57,7 @@ describe "Defense", ->
     expect(resist.status.key).to.be.equal 'normal'
 
   it "Should take first degree and one stress on a roll of 5", ->
-    a = new Attack
+    a = Attack.createDamage()
     hit = new AttackResult {attack: a}
 
     @d.addModifier 'rollCheck', (x) -> 5
@@ -69,7 +69,7 @@ describe "Defense", ->
     expect(resist.status.key).to.be.equal 'dazed'
 
   it "Should take second degree and one stress on a roll of 1", ->
-    a = new Attack
+    a = Attack.createDamage()
     hit = new AttackResult {attack: a}
 
     @d.addModifier 'rollCheck', (x) -> 1
@@ -81,7 +81,7 @@ describe "Defense", ->
     expect(resist.status.key).to.be.equal 'staggered'
 
   it "Should take third degree and one stress on a roll of 1 plus 2 stress", ->
-    a = new Attack
+    a = Attack.createDamage()
     hit = new AttackResult {attack: a}
 
     @d.addModifier 'rollCheck', (x) -> 1
@@ -93,7 +93,7 @@ describe "Defense", ->
     expect(resist.status.key).to.be.equal 'incapacitated'
 
   it "Should roll of 20 bumps degree up to only take staggered", ->
-    a = new Attack
+    a = Attack.createDamage()
     hit = new AttackResult {attack: a}
 
     @d.addModifier 'rollCheck', (x) -> 20
@@ -106,7 +106,7 @@ describe "Defense", ->
 
 
   it "Should roll of 19 has enough stress to 'incapacitated'", ->
-    a = new Attack
+    a = Attack.createDamage()
     hit = new AttackResult {attack: a}
 
     @d.addModifier 'rollCheck', (x) -> 19

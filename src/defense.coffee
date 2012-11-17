@@ -2,7 +2,7 @@
 {utils} = require './utils.coffee'
 
 class ResistResult extends Modifiable
-  constructor: (values) ->
+  constructor: (values={}) ->
     properties =
       defense: null
       d20    : 0
@@ -14,7 +14,7 @@ class ResistResult extends Modifiable
     super null, properties, values
 
 class Defense extends Modifiable
-  constructor: (values) ->
+  constructor: (values={}) ->
     modifiable =
       value     : 10
       save      : 10
