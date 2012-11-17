@@ -1,7 +1,23 @@
 {Modifiable} = require './modifiable.coffee'
+{Status} = require('../src/status.coffee')
 
-class AttackResult
-  constructor: (@attack, @damage, @damageImpervious, @d20, @roll, @isCrit, @degree) ->
+class AttackResult extends Modifiable
+  constructor: (values) ->
+    properties =
+      attack          : null
+      damage          : 0
+      damageImpervious: 0
+      d20             : 0
+      roll            : 0
+      isCrit          : false
+      degree          : 1 # successful attack by default
+
+    super null, properties, values
+
+    # if we got an attack and values didn't have damage, default to attack.rank
+    if @attack?
+      @damage = @attack.rank if not values.damage?
+      @damageImpervious = @attack.rank if not values.damageImpervious?
 
 class Attack extends Modifiable
   constructor: (values) ->
@@ -21,7 +37,16 @@ class Attack extends Modifiable
       statuses          : ['dazed','staggered','incapacitated']
 
     super modifiable, properties, values
+
+    # TODO throw error if statuses invalid
   
+  statusByResistDegree: (degree) ->
+    return Status.getStatus 'normal' if degree > 0
+    @statusByDegree(Math.abs degree)
+
+  statusByDegree: (degree) ->
+    return Status.getStatus 'normal' if degree < 1
+    Status.getStatus @statuses[Math.min(degree, @statuses.length) - 1]
   
 module.exports =
   Attack:       Attack
