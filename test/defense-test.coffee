@@ -116,3 +116,32 @@ describe "Defense", ->
     expect(resist.degree).to.be.equal -3
     expect(resist.stress).to.be.equal 1
     expect(resist.status.key).to.be.equal 'incapacitated'
+
+  it "Should take no damage with invulnerable 10, penetrating 5, roll 10", ->
+    a = Attack.createDamage()
+    a.penetrating = 5
+    hit = new AttackResult {attack: a}
+
+    @d.addModifier 'rollCheck', (x) -> 10
+    @d.impervious = a.rank
+    resist = @d.resistHit hit, 0
+    expect(resist.d20).to.be.equal 10
+    expect(resist.roll).to.be.equal 20
+    expect(resist.degree).to.be.equal 2
+    expect(resist.stress).to.be.equal 0
+    expect(resist.status.key).to.be.equal 'normal'
+
+
+  it "Should take one stress with invulnerable 10, penetrating 15, roll 10", ->
+    a = Attack.createDamage()
+    a.penetrating = 15
+    hit = new AttackResult {attack: a}
+
+    @d.addModifier 'rollCheck', (x) -> 10
+    @d.impervious = a.rank
+    resist = @d.resistHit hit, 0
+    expect(resist.d20).to.be.equal 10
+    expect(resist.roll).to.be.equal 20
+    expect(resist.degree).to.be.equal 1
+    expect(resist.stress).to.be.equal 1
+    expect(resist.status.key).to.be.equal 'normal'

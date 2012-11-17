@@ -25,15 +25,19 @@ class Defense extends Modifiable
   resistHit: (hit, stress) ->
     resist = new ResistResult {defense: this}
 
-    # bail if impervious to this attack
-    return resist if @impervious? and (@impervious - hit.attack.penetrating) >= hit.damageImpervious
+    damage = hit.damage
+
+    # if impervious to attack's damage, then damage is equal to penetrating
+    if @impervious? and @impervious >= hit.damageImpervious
+      return resist if not hit.attack.penetrating? or hit.attack.penetrating < 1
+      damage = Math.min(hit.attack.penetrating, hit.damage)
 
     # Always roll vs Damage+10 to determin status and stress
     # The degree will be the status inflicted
     # Stress caused if degree <= 1 (equivalent to Damage+15)
     resist.d20 = @rollCheck()
     resist.roll = resist.d20 + @save - stress
-    resist.degree = @checkDegree(hit.damage + 10, resist.roll)
+    resist.degree = @checkDegree(damage + 10, resist.roll)
 
     # critical success bumps up degree by one
     resist.degree = utils.increaseDegree resist.degree if resist.d20 is 20
