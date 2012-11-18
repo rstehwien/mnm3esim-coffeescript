@@ -1,5 +1,6 @@
 {Modifiable} = require './modifiable.coffee'
 {utils} = require './utils.coffee'
+{Status} = require('../src/status.coffee')
 
 class ResistResult extends Modifiable
   constructor: (values={}) ->
@@ -9,7 +10,7 @@ class ResistResult extends Modifiable
       roll   : 0
       degree : 4 #successful resistance by default
       stress : 0
-      status : 'normal'
+      status : Status.getStatus 'normal'
       
     super null, properties, values
 

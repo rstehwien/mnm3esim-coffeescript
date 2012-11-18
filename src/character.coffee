@@ -7,7 +7,7 @@ class CharacterEffect extends Modifiable
     properties =
       attack : null
       defense: null
-      degree : 0
+      status : null
       
     super null, properties, values
 
@@ -59,9 +59,62 @@ class Character extends Modifiable
       @defense?.addModifier(m.property, m.modifier) if 'defense' in groups
 
   attack: (target) ->
-    # bail if attack or defense is nil
+    # bail if attack or defense is null
     return if not @attack? or not target?.defense?
     target.applyHit(@attack.attack target.defense)
+  
+  applyHit: (hit) ->
+    # bail if missed
+    return if hit.degree < 0
+
+    resist = @defense.resistHit hit, @stress
+
+    # bail if we took no stress or status
+    return if resist.stress < 1 and (not resist.status? or resist.status.degree < 1)
+
+    @stress += resist.stress
+
+    return if not resist.status? or resist.status.degree < 1
+
+    curStatus = if @effects[hit.attack.uid]? then @effects[hit.attack.uid].status else Status.getStatus 'normal'
+    newStatus = resist.status
+
+    # cumulative attacks add their degrees
+    # NOTE: damage sets the cumulative degree to ['staggered'] which means another staggered will add 2 to the degree, but it works out right
+    cumulativeStatuses = hit.attack.cumulativeStatuses
+    if curStatus.key in cumulativeStatuses and newStatus.key in cumulativeStatuses
+      newStatus = hit.attack.getStatusByDegree(curStatus.degree + newStatus.degree)
+
+    # non-cumulative only replaces if new degree is better
+    if newStatus.degree > curStatus.degree 
+      addEffect(new CharacterEffect {attack: hit.attack, defense: resist.defense, degree: newStatus})
+
+  addEffect: (effect) ->
+    @effects[effect.attack.uid] = effect
+    @updateStatus()
+
+  endRoundRecovery: ->
+    changed = false
+    for own k, effect of @effects
+      # next if no recovery check allowed or needed
+      continue if not effect.attack.isStatusRecovery or effect.status.degree < 1 or effect.status.degree > 2
+
+      resistance = @checkDegree (effect.attack.rank + 10), (@rollCheck effect.defense.save)
+
+      # if resistance sucessful, lower the status by one
+      if resistance > 0
+        changed = true
+        effect.status = Status.getStatus 'normal'
+      # if failed and progressive, increase status by one
+      else if effect.attack.isProgressive
+        changed = true
+        effect.status = effect.attack.getStatusByDegree(effect.status.degree + 1)
+      end
+    end
+
+    if changed
+      delete @effects[uid] for uid in (k for own k, v of @effects when v.status.degree < 1)
+      @updateStatus
   
 module.exports =
   Character      : Character
