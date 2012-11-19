@@ -64,7 +64,7 @@ class Attack extends Modifiable
       isProgressive     : false
       isMultiattack     : false
       cumulativeStatuses: []
-      statuses          : ['dazed','staggered','incapacitated']
+      statuses          : ['impaired', 'disabled', 'incapacitated']
 
   @createDamage: (values={}) ->
     new Attack _.extend(Attack.DEFAULTS_DAMAGE, values)

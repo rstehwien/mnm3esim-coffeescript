@@ -8,8 +8,13 @@ class CharacterEffect extends Modifiable
       attack : null
       defense: null
       status : null
-      
+      degree : null
+
     super null, properties, values
+
+    # default degree and status if not given and was given what needed
+    @degree = values.status.degree if (not values.degree?) and values.status?
+    @status = values.attack.statusByDegree values.degree if (not values.status?) and values.attack? and values.degree?
 
 class Character extends Modifiable
   constructor: (values={}) ->
@@ -17,6 +22,7 @@ class Character extends Modifiable
       initiative  : 0,
       actions     : 'full'
       isControlled: false
+      speed       : 0
 
     properties =
       name        : "Character"
@@ -39,7 +45,10 @@ class Character extends Modifiable
     @initiativeValue = @rollCheck @initiative
 
   updateStatus: ->
-    statuses = (effect.attack.statusByDegree(effect.degree).key for own k,effect of @effects)
+    # clear any normal status effects
+    delete @effects[uid] for uid in (k for own k, v of @effects when v.status.degree < 1)
+
+    statuses = (effect.status.key for own k,effect of @effects)
     combined = Status.combinedStatus statuses
 
     @status = combined.statuses
@@ -83,11 +92,11 @@ class Character extends Modifiable
     # NOTE: damage sets the cumulative degree to ['staggered'] which means another staggered will add 2 to the degree, but it works out right
     cumulativeStatuses = hit.attack.cumulativeStatuses
     if curStatus.key in cumulativeStatuses and newStatus.key in cumulativeStatuses
-      newStatus = hit.attack.getStatusByDegree(curStatus.degree + newStatus.degree)
+      newStatus = hit.attack.statusByDegree(curStatus.degree + newStatus.degree)
 
     # non-cumulative only replaces if new degree is better
     if newStatus.degree > curStatus.degree 
-      addEffect(new CharacterEffect {attack: hit.attack, defense: resist.defense, degree: newStatus})
+      addEffect(new CharacterEffect {attack: hit.attack, defense: resist.defense, status: newStatus})
 
   addEffect: (effect) ->
     @effects[effect.attack.uid] = effect
@@ -105,15 +114,13 @@ class Character extends Modifiable
       if resistance > 0
         changed = true
         effect.status = Status.getStatus 'normal'
+
       # if failed and progressive, increase status by one
       else if effect.attack.isProgressive
         changed = true
-        effect.status = effect.attack.getStatusByDegree(effect.status.degree + 1)
-      end
-    end
+        effect.status = effect.attack.statusByDegree(effect.status.degree + 1)
 
     if changed
-      delete @effects[uid] for uid in (k for own k, v of @effects when v.status.degree < 1)
       @updateStatus
   
 module.exports =
