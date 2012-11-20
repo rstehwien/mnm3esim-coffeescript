@@ -38,8 +38,10 @@ class Modifiable
       throw new Error "'#{k}' cannot be modified" if not @_modifiers[k]?
       @_modifiers[k].push m
 
-    clearModifiers: (k) -> 
-      if k?
+    clearModifiers: (k) ->
+      if _.isArray k
+        @clearModifiers(key) for own key, value of k
+      else if k?
         @_modifiers[k] = [] if @_modifiers[k]?
       else
         @clearModifiers(key) for own key, value of @_modifiers

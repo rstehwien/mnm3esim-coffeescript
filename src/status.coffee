@@ -14,7 +14,7 @@ class Status
       replace: null
       modifiers: null
 
-    value = _.extend def, value
+    value = _.extend {}, def, value
     @key = value.key
     @degree = value.degree
     @recovery = value.recovery

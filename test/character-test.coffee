@@ -25,6 +25,7 @@ describe "Character", ->
     @attackDamage = Attack.createDamage()
     @attackAffliction = Attack.createAffliction()
     @character = new Character {attack: @attackDamage, defense: new Defense}
+    @hit = new AttackResult {attack: @attackDamage, d20: 15, roll: 25, isCrit: false, degree: 1}
 
   it "Should have defaults", ->
     c = new Character
@@ -76,3 +77,59 @@ describe "Character", ->
     expect(@character.statusDegree).to.be.equal 2
     expect(@character.actions).to.be.equal 'partial'
     expect(@character.speed).to.be.equal -1
+
+  it "Should add take no stress on applyHit and degree 2 success", ->
+    @character.defense.addModifier 'rollCheck', (x) -> 15
+    @character.applyHit @hit
+    expect(@character.stress).to.be.equal 0
+    expect(_.keys @character.status).to.be.equivalentArray ['normal']
+ 
+  it "Should add stress on applyHit and basic resist success", ->
+    @character.defense.addModifier 'rollCheck', (x) -> 10
+    @character.applyHit @hit
+    expect(@character.stress).to.be.equal 1
+    expect(_.keys @character.status).to.be.equivalentArray ['normal']
+ 
+  it "Should add stress and degrree on applyHit failing by 1 degree", ->
+    @character.defense.addModifier 'rollCheck', (x) -> 5
+    @character.applyHit @hit
+    expect(@character.stress).to.be.equal 1
+    expect(_.keys @character.status).to.be.equivalentArray ['dazed', 'actionPartial']
+ 
+  it "Should worst that can happen is staggered and 1 stress", ->
+    @character.defense.addModifier 'rollCheck', (x) -> 1
+    @character.applyHit @hit
+    expect(@character.stress).to.be.equal 1
+    expect(_.keys @character.status).to.be.equivalentArray ['staggered', 'dazed', 'actionPartial', 'hindered', 'disabled']
+
+  it "Should handle cumulative status for applyHit", ->
+    @character.addEffect new CharacterEffect {attack: @character.attack, defense: @character.defense, degree: 2}
+    expect(_.keys @character.status).to.be.equivalentArray ['staggered', 'dazed', 'actionPartial', 'hindered']
+
+    @character.defense.addModifier 'rollCheck', (x) -> 4
+    @character.applyHit @hit
+    expect(@character.stress).to.be.equal 1
+    expect(@character.statusDegree).to.be.equal 3
+    expect(_.keys @character.status).to.be.equivalentArray ['incapacitated', 'defenseless', 'stunned', 'actionNone', 'unaware', 'prone', 'hindered']
+
+  it "Should handle multiple cumulative status for applyHit", ->
+    @attackAffliction = Attack.createAffliction({statuses: ['dazed','staggered','incapacitated'], cumulativeStatuses: ['dazed','staggered']})
+    @hit = new AttackResult {attack: @attackAffliction, d20: 15, roll: 25, isCrit: false, degree: 1}
+
+    @character.addEffect new CharacterEffect {attack: @attackAffliction, defense: @character.defense, degree: 2}
+    expect(_.keys @character.status).to.be.equivalentArray ['staggered', 'dazed', 'actionPartial', 'hindered']
+
+    @character.defense.addModifier 'rollCheck', (x) -> 9
+    @character.applyHit @hit
+    expect(@character.stress).to.be.equal 0
+    expect(@character.statusDegree).to.be.equal 3
+    expect(_.keys @character.status).to.be.equivalentArray ['incapacitated', 'defenseless', 'stunned', 'actionNone', 'unaware', 'prone', 'hindered']
+
+  it "Should be beaten down rolling just enough to take stress", ->  
+    while @character.statusDegree < 3
+      @character.defense.clearModifiers 'rollCheck'
+      @character.defense.addModifier 'rollCheck', (x) -> 14 # the hit setting a status would clear this modifier
+      @character.applyHit @hit 
+    expect(@character.stress).to.be.equal 12
+    expect(_.keys @character.status).to.be.equivalentArray ['incapacitated', 'defenseless', 'stunned', 'actionNone', 'unaware', 'prone', 'hindered']
+

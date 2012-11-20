@@ -67,10 +67,10 @@ class Attack extends Modifiable
       statuses          : ['impaired', 'disabled', 'incapacitated']
 
   @createDamage: (values={}) ->
-    new Attack _.extend(Attack.DEFAULTS_DAMAGE, values)
+    new Attack(_.extend {}, Attack.DEFAULTS_DAMAGE, values)
     
   @createAffliction: (values={}) ->
-    new Attack _.extend(Attack.DEFAULTS_AFFLICTION, values)
+    new Attack(_.extend {}, Attack.DEFAULTS_AFFLICTION, values)
 
   statusByResistDegree: (degree) ->
     return Status.getStatus 'normal' if degree > 0

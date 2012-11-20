@@ -1,6 +1,17 @@
 {Attack, AttackResult} = require('../src/attack.coffee')
 {Defense} = require('../src/defense.coffee')
 
+describe "AttackResult", ->
+  it "Should fill in damage when given attack", ->
+    hit = new AttackResult {attack: Attack.createDamage({rank: 11})}
+    expect(hit.damage).to.be.equal hit.attack.rank
+    expect(hit.damageImpervious).to.be.equal hit.attack.rank
+
+  it "Should allow overriding damage", ->
+    hit = new AttackResult {attack: Attack.createDamage(), damage:100, damageImpervious: 150}
+    expect(hit.damage).to.be.equal 100
+    expect(hit.damageImpervious).to.be.equal 150
+
 describe "Attack", ->
 
   beforeEach () ->

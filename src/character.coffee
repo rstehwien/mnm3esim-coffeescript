@@ -77,17 +77,16 @@ class Character extends Modifiable
     return if hit.degree < 0
 
     resist = @defense.resistHit hit, @stress
-
-    # bail if we took no stress or status
-    return if resist.stress < 1 and (not resist.status? or resist.status.degree < 1)
-
     @stress += resist.stress
 
+    # bail if we took no status
     return if not resist.status? or resist.status.degree < 1
 
     curStatus = if @effects[hit.attack.uid]? then @effects[hit.attack.uid].status else Status.getStatus 'normal'
     newStatus = resist.status
 
+    #TODO when dealing with multiple attacks need to handle cumulative to compare against  overall status
+    
     # cumulative attacks add their degrees
     # NOTE: damage sets the cumulative degree to ['staggered'] which means another staggered will add 2 to the degree, but it works out right
     cumulativeStatuses = hit.attack.cumulativeStatuses
@@ -96,7 +95,7 @@ class Character extends Modifiable
 
     # non-cumulative only replaces if new degree is better
     if newStatus.degree > curStatus.degree 
-      addEffect(new CharacterEffect {attack: hit.attack, defense: resist.defense, status: newStatus})
+      @addEffect(new CharacterEffect {attack: hit.attack, defense: resist.defense, status: newStatus})
 
   addEffect: (effect) ->
     @effects[effect.attack.uid] = effect
