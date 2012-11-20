@@ -30,6 +30,7 @@ class CakeUtils
 		@js_path    = @build_path #path.join build_path, 'js'
 		@bndl_path  = path.join @lib_path, "#{@pkg_name}-bundle.js"
 		@min_path   = path.join @lib_path, "#{@pkg_name}-bundle.min.js"
+		@main_path  = path.join @src_path, @pkg_name
 
 	# Log to console if non-empty string.
 	#
@@ -155,7 +156,15 @@ class CakeUtils
 		watch.add(@src_path).add("test").onChange (path, prev, cur) =>
 			@print "detected changes on #{path}"
 			invoke "test"
-		
+	
+	@run: (callback) =>
+		@print "Run #{@main_path}"
+		@exec "coffee #{@main_path}", callback
+	
+	
+	@debug: (callback) =>
+		@print "Run #{@main_path}"
+		@exec "coffee --nodejs --debug #{@main_path}", callback
 
 	# ----------------------------------
 	# Quick Tasks
