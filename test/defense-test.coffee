@@ -3,7 +3,7 @@
 
 describe "Defense", ->
 
-  beforeEach () ->
+  beforeEach ->
     @defense = new Defense
     @attack = Attack.createDamage()
     @hit = new AttackResult {attack: @attack, degree: 1} # basic hit

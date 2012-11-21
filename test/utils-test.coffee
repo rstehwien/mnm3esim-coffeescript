@@ -33,4 +33,13 @@ describe "utils", ->
     for v in generateExpectedDegrees(dc)
       expect(utils.checkDegree(dc, v[0])).to.be.equal(v[1])
 
+  it "Should get statistics", ->
+    s = utils.statistics [1,2,3]
+    expect(s.min).to.equal 1
+    expect(s.max).to.equal 3
+    expect(s.mean).to.equal 2
+    expect(s.median).to.equal 2
+    expect(s.variance).to.equal 1
+    expect(s.standardDeviation).to.equal 1
+    expect(utils.formatStatBlock s).to.equal '              min: 1\n              max: 3\n             mean: 2\n           median: 2\n         variance: 1\nstandardDeviation: 1'
 

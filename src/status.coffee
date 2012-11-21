@@ -42,7 +42,7 @@ class Status
       degrees.push(status.degree)
       modifiers.push new StatusModifier m... for m in status.modifiers when _.isArray m if _.isArray status.modifiers
 
-    max = if degrees.length > 0 then Math.max degrees... else 0   
+    max = if degrees.length > 0 then _.max degrees else 0   
 
     {'statuses': statuses, 'modifiers': modifiers, 'degree': max}
 

@@ -5,7 +5,7 @@
 _ = require 'underscore'
 
 describe "CharacterEffect", ->
-  beforeEach () ->
+  beforeEach ->
     @attack = Attack.createDamage()
     @defense = new Defense
 
@@ -21,7 +21,7 @@ describe "CharacterEffect", ->
 
 describe "Character", ->
 
-  beforeEach () ->
+  beforeEach ->
     @attackDamage = Attack.createDamage()
     @attackAffliction = Attack.createAffliction()
     @character = new Character {attack: @attackDamage, defense: new Defense}

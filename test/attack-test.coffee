@@ -14,7 +14,7 @@ describe "AttackResult", ->
 
 describe "Attack", ->
 
-  beforeEach () ->
+  beforeEach ->
     @defense = new Defense
     @attack = Attack.createDamage()
  

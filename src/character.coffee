@@ -25,13 +25,14 @@ class Character extends Modifiable
       speed       : 0
 
     properties =
-      name        : "Character"
-      attack      : null
-      defense     : null
-      stress      : 0
-      stressDegree: 0
-      status      : null
-      _effects     : {}
+      name           : "Character"
+      attack         : null
+      defense        : null
+      stress         : 0
+      stressDegree   : 0
+      status         : null
+      _effects       : {}
+      initiativeValue: 0
 
     super modifiable, properties, values
     @initCombat()

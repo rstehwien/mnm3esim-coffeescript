@@ -1,5 +1,10 @@
 _ = require 'underscore'
 
+String::ljust = (len, char = ' ') ->
+  fill = []
+  fill[fill.length] = char while fill.length + @length < len
+  (fill.join '') + this
+
 class Utils
   @rollD20: (bonus=0) ->
     Math.floor(Math.random() * 20) + 1 + bonus
@@ -20,6 +25,32 @@ class Utils
       return obj
     else
       return [obj]
+
+  @statistics: (a) -> 
+    result = {}
+
+    result.min = _.min a
+    result.max = _.max a
+
+    total = _.reduce a, ((sum, x) -> sum + x), 0
+    mean = total / a.length
+    result.mean = mean
+
+    sorted = a.sort()
+    idx = Math.floor a.length/2
+    result.median = if a.length % 2 == 1 then sorted[idx] else (sorted[idx - 1] + sorted[idx]) / 2
+
+    sv = _.reduce a, ((accum, i) -> accum + (Math.pow (i - mean), 2)), 0
+    variance = sv / (a.length - 1)
+    result.variance = variance
+    result.standardDeviation =  Math.sqrt variance
+
+    result
+
+  @formatStatBlock: (s) ->
+    order = ['min', 'max', 'mean', 'median', 'variance', 'standardDeviation']
+    stats = ("#{(k+':').ljust 18} #{s[k]}" for k in order)
+    stats.join '\n'
 
 module.exports =
   utils: Utils

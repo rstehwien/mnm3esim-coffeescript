@@ -1,5 +1,6 @@
 {Modifiable} = require './modifiable.coffee'
 {Status} = require('../src/status.coffee')
+_ = require 'underscore'
 
 class AttackResult extends Modifiable
   constructor: (values={}) ->
