@@ -31,7 +31,7 @@ class Character extends Modifiable
       stress      : 0
       stressDegree: 0
       status      : null
-      effects     : {}
+      _effects     : {}
 
     super modifiable, properties, values
     @initCombat()
@@ -40,15 +40,15 @@ class Character extends Modifiable
     @stress = 0
     @actions = 'full'
     @isControlled = false
-    @effects = {}
-    @updateStatus()
+    @_effects = {}
+    @_updateStatus()
     @initiativeValue = @rollCheck @initiative
 
-  updateStatus: ->
-    # clear any normal status effects
-    delete @effects[uid] for uid in (k for own k, v of @effects when v.status.degree < 1)
+  _updateStatus: ->
+    # clear any normal status _effects
+    delete @_effects[uid] for uid in (k for own k, v of @_effects when v.status.degree < 1)
 
-    statuses = (effect.status.key for own k,effect of @effects)
+    statuses = (effect.status.key for own k,effect of @_effects)
     combined = Status.combinedStatus statuses
 
     @status = combined.statuses
@@ -60,12 +60,14 @@ class Character extends Modifiable
     @defense?.clearModifiers()
 
     # add any modifiers
-    for m in combined.modifiers
-      groups = utils.makeArray m.group
-      groups = ['character', 'attack', 'defense'] if 'ALL' in groups
-      @addModifier(m.property, m.modifier) if 'character' in groups
-      @attack?.addModifier(m.property, m.modifier) if 'attack' in groups
-      @defense?.addModifier(m.property, m.modifier) if 'defense' in groups
+    @addStatusModifier m for m in combined.modifiers
+
+  addStatusModifier: (m) ->
+    groups = utils.makeArray m.group
+    groups = ['character', 'attack', 'defense'] if 'ALL' in groups
+    @addModifier(m.property, m.modifier) if 'character' in groups
+    @attack?.addModifier(m.property, m.modifier) if 'attack' in groups
+    @defense?.addModifier(m.property, m.modifier) if 'defense' in groups
 
   attack: (target) ->
     # bail if attack or defense is null
@@ -82,7 +84,7 @@ class Character extends Modifiable
     # bail if we took no status
     return if not resist.status? or resist.status.degree < 1
 
-    curStatus = if @effects[hit.attack.uid]? then @effects[hit.attack.uid].status else Status.getStatus 'normal'
+    curStatus = if @_effects[hit.attack.uid]? then @_effects[hit.attack.uid].status else Status.getStatus 'normal'
     newStatus = resist.status
 
     #TODO when dealing with multiple attacks need to handle cumulative to compare against  overall status
@@ -98,12 +100,12 @@ class Character extends Modifiable
       @addEffect(new CharacterEffect {attack: hit.attack, defense: resist.defense, status: newStatus})
 
   addEffect: (effect) ->
-    @effects[effect.attack.uid] = effect
-    @updateStatus()
+    @_effects[effect.attack.uid] = effect
+    @_updateStatus()
 
   endRoundRecovery: ->
     changed = false
-    for own k, effect of @effects
+    for own k, effect of @_effects
       # next if no recovery check allowed or needed
       continue if not effect.attack.isStatusRecovery or effect.status.degree < 1 or effect.status.degree > 2
 
@@ -120,8 +122,8 @@ class Character extends Modifiable
         effect.status = effect.attack.statusByDegree(effect.status.degree + 1)
 
     if changed
-      @updateStatus
-  
+      @_updateStatus()
+   
 module.exports =
   Character      : Character
   CharacterEffect: CharacterEffect

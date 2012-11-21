@@ -1,5 +1,5 @@
 {Character, CharacterEffect} = require('../src/character.coffee')
-{Status} = require('../src/status.coffee')
+{Status, StatusModifier} = require('../src/status.coffee')
 {Attack, AttackResult} = require('../src/attack.coffee')
 {Defense, ResistResult} = require('../src/defense.coffee')
 _ = require 'underscore'
@@ -36,7 +36,6 @@ describe "Character", ->
     expect(c.attack).to.be.null
     expect(c.defense).to.be.null
     expect(c.stress).to.be.equal 0
-    expect(c.effects).to.eql {}
     expect(_.keys c.status).to.be.equivalentArray ['normal']
     expect(c.statusDegree).to.be.equal 0
     expect(c.speed).to.be.equal 0
@@ -79,25 +78,25 @@ describe "Character", ->
     expect(@character.speed).to.be.equal -1
 
   it "Should add take no stress on applyHit and degree 2 success", ->
-    @character.defense.addModifier 'rollCheck', (x) -> 15
+    @character.addStatusModifier new StatusModifier 'ALL', 'rollCheck', (x) -> 15
     @character.applyHit @hit
     expect(@character.stress).to.be.equal 0
     expect(_.keys @character.status).to.be.equivalentArray ['normal']
  
   it "Should add stress on applyHit and basic resist success", ->
-    @character.defense.addModifier 'rollCheck', (x) -> 10
+    @character.addStatusModifier new StatusModifier 'ALL', 'rollCheck', (x) -> 10
     @character.applyHit @hit
     expect(@character.stress).to.be.equal 1
     expect(_.keys @character.status).to.be.equivalentArray ['normal']
  
   it "Should add stress and degrree on applyHit failing by 1 degree", ->
-    @character.defense.addModifier 'rollCheck', (x) -> 5
+    @character.addStatusModifier new StatusModifier 'ALL', 'rollCheck', (x) -> 5
     @character.applyHit @hit
     expect(@character.stress).to.be.equal 1
     expect(_.keys @character.status).to.be.equivalentArray ['dazed', 'actionPartial']
  
   it "Should worst that can happen is staggered and 1 stress", ->
-    @character.defense.addModifier 'rollCheck', (x) -> 1
+    @character.addStatusModifier new StatusModifier 'ALL', 'rollCheck', (x) -> 1
     @character.applyHit @hit
     expect(@character.stress).to.be.equal 1
     expect(_.keys @character.status).to.be.equivalentArray ['staggered', 'dazed', 'actionPartial', 'hindered', 'disabled']
@@ -106,7 +105,7 @@ describe "Character", ->
     @character.addEffect new CharacterEffect {attack: @character.attack, defense: @character.defense, degree: 2}
     expect(_.keys @character.status).to.be.equivalentArray ['staggered', 'dazed', 'actionPartial', 'hindered']
 
-    @character.defense.addModifier 'rollCheck', (x) -> 4
+    @character.addStatusModifier new StatusModifier 'ALL', 'rollCheck', (x) -> 4
     @character.applyHit @hit
     expect(@character.stress).to.be.equal 1
     expect(@character.statusDegree).to.be.equal 3
@@ -119,7 +118,7 @@ describe "Character", ->
     @character.addEffect new CharacterEffect {attack: @attackAffliction, defense: @character.defense, degree: 2}
     expect(_.keys @character.status).to.be.equivalentArray ['staggered', 'dazed', 'actionPartial', 'hindered']
 
-    @character.defense.addModifier 'rollCheck', (x) -> 9
+    @character.addStatusModifier new StatusModifier 'ALL', 'rollCheck', (x) -> 9
     @character.applyHit @hit
     expect(@character.stress).to.be.equal 0
     expect(@character.statusDegree).to.be.equal 3
@@ -128,8 +127,45 @@ describe "Character", ->
   it "Should be beaten down rolling just enough to take stress", ->  
     while @character.statusDegree < 3
       @character.defense.clearModifiers 'rollCheck'
-      @character.defense.addModifier 'rollCheck', (x) -> 14 # the hit setting a status would clear this modifier
+      # the hit setting a status would clear this modifier
+      @character.addStatusModifier new StatusModifier 'ALL', 'rollCheck', (x) -> 14
       @character.applyHit @hit 
     expect(@character.stress).to.be.equal 12
     expect(_.keys @character.status).to.be.equivalentArray ['incapacitated', 'defenseless', 'stunned', 'actionNone', 'unaware', 'prone', 'hindered']
 
+  it "Should not be able to recover normal damage", ->
+    @character.addEffect new CharacterEffect {attack: @character.attack, defense: @character.defense, status: (@character.attack.statusByDegree 1)}
+    @character.addStatusModifier new StatusModifier 'ALL', 'rollCheck', (x) -> 20
+    @character.endRoundRecovery()
+    expect(_.keys @character.status).to.be.equivalentArray ['dazed', 'actionPartial']
+    expect(@character.statusDegree).to.be.equal 1
+
+  it "Should be able to recover progressive affliction", ->
+    @attackAffliction = Attack.createAffliction({
+      statuses: ['dazed','staggered','incapacitated'], 
+      isProgressive: true
+      })
+    @character.addEffect new CharacterEffect {attack: @attackAffliction, defense: @character.defense, status: (@character.attack.statusByDegree 1)}
+    @character.addStatusModifier new StatusModifier 'ALL', 'rollCheck', (x) -> 20
+    @character.endRoundRecovery()
+    expect(_.keys @character.status).to.be.equivalentArray ['normal']
+    expect(@character.statusDegree).to.be.equal 0
+
+  it "Should be have progressive afflictions get worse", ->
+    @attackAffliction = Attack.createAffliction({
+      statuses: ['dazed','staggered','incapacitated'], 
+      isProgressive: true
+      })
+    @character.addEffect new CharacterEffect {attack: @attackAffliction, defense: @character.defense, status: (@character.attack.statusByDegree 1)}
+    expect(_.keys @character.status).to.be.equivalentArray ['dazed', 'actionPartial']
+    expect(@character.statusDegree).to.be.equal 1
+
+    @character.addStatusModifier new StatusModifier 'ALL', 'rollCheck', (x) -> 9
+    @character.endRoundRecovery()
+    expect(_.keys @character.status).to.be.equivalentArray ['staggered', 'dazed', 'actionPartial', 'hindered']
+    expect(@character.statusDegree).to.be.equal 2
+
+    @character.addStatusModifier new StatusModifier 'ALL', 'rollCheck', (x) -> 9
+    @character.endRoundRecovery()
+    expect(_.keys @character.status).to.be.equivalentArray ['incapacitated', 'defenseless', 'stunned', 'actionNone', 'unaware', 'prone', 'hindered']
+    expect(@character.statusDegree).to.be.equal 3
