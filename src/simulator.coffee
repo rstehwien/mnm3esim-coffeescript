@@ -25,7 +25,7 @@ class Simulator extends Modifiable
       @_numRounds = []
 
   _initCombat: ->
-      characters = team1.concat team2
+      characters = @team1.concat @team2
       c.initCombat() for c in characters
       @_initOrder = _.sortBy characters, (c) -> c.initiativeValue
 
@@ -33,7 +33,7 @@ class Simulator extends Modifiable
       @_initCombat()
 
       rounds = 0
-      while not _isCombatFinished() and rounds < 10000
+      while not @_isCombatFinished() and rounds < 10000
         rounds += 1
         @_runRound()
 
@@ -53,7 +53,7 @@ class Simulator extends Modifiable
         target = if c in @team1 then @team1[0] else @team2[0]
       else
         target = if c in @team1 then @team2[0] else @team1[0]
-      c.attack target
+      c.attack.attack target if c.attack?
 
       return if @_isCombatFinished()
 
