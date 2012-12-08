@@ -70,7 +70,7 @@ class Character extends Modifiable
     @attack?.addModifier(m.property, m.modifier) if 'attack' in groups
     @defense?.addModifier(m.property, m.modifier) if 'defense' in groups
 
-  attack: (target) ->
+  doAttack: (target) ->
     # bail if attack or defense is null
     return if not @attack? or not target?.defense?
     target.applyHit(@attack.attack target.defense)

@@ -6,9 +6,12 @@
 _ = require 'underscore'
 
 class Simulator extends Modifiable
+  @MAX_ROUNDS: 10000
+  @DEFAULT_ITERATIONS: 100000
+
   constructor: (values={}) ->
     properties =
-      iterations: 10000
+      iterations: Simulator.DEFAULT_ITERATIONS
       team1: [new Character {name: "Attacker", attack: new Attack}]
       team2: [new Character {name: "Defender", defense: new Defense}]
       _initOrder: null
@@ -33,7 +36,7 @@ class Simulator extends Modifiable
       @_initCombat()
 
       rounds = 0
-      while not @_isCombatFinished() and rounds < 10000
+      while not @_isCombatFinished() and rounds < Simulator.MAX_ROUNDS
         rounds += 1
         @_runRound()
 
@@ -47,16 +50,15 @@ class Simulator extends Modifiable
   _runRound: ->
     for c in @_initOrder
       continue if c.actions is 'none'
+      return if @_isCombatFinished()
 
       # determine and attack the target
       if c.isControlled
         target = if c in @team1 then @team1[0] else @team2[0]
       else
         target = if c in @team1 then @team2[0] else @team1[0]
-      c.attack.attack target if c.attack?
 
-      return if @_isCombatFinished()
-
+      c.doAttack target if c.attack?
       c.endRoundRecovery()
 
 

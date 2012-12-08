@@ -169,3 +169,11 @@ describe "Character", ->
     @character.endRoundRecovery()
     expect(_.keys @character.status).to.be.equivalentArray ['incapacitated', 'defenseless', 'stunned', 'actionNone', 'unaware', 'prone', 'hindered']
     expect(@character.statusDegree).to.be.equal 3
+
+  it "Should be able to attack another character", ->
+    defender = new Character {name: "Defender", defense: new Defense}
+    @character.addStatusModifier new StatusModifier 'ALL', 'rollCheck', (x) -> 20
+    defender.addStatusModifier new StatusModifier 'ALL', 'rollCheck', (x) -> 1
+    @character.doAttack defender
+    expect(defender.statusDegree).to.be.equal 3
+ 
