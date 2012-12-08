@@ -31,6 +31,11 @@ describe "Attack", ->
     expect(@attack.cumulativeStatuses).to.be.equivalentArray ['staggered']
     expect(@attack.statuses).to.be.equivalentArray ['dazed','staggered','incapacitated']
 
+  it "Should be able to use num for cumulative", ->
+    @attack = Attack.createDamage({cumulativeStatuses: [2]})
+    expect(@attack.cumulativeStatuses).to.be.equivalentArray ['staggered']
+    expect(@attack.statuses).to.be.equivalentArray ['dazed','staggered','incapacitated']
+
   it "Should hit automatically if perception attack", ->
     @attack.isPerceptionAttack = true
     @attack.addModifier 'rollCheck', (x) -> -100 # no way this could hit, make sure never rolled

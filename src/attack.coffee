@@ -1,6 +1,7 @@
 {Modifiable} = require './modifiable.coffee'
 {Status} = require('../src/status.coffee')
 _ = require 'underscore'
+{utils} = require './utils.coffee'
 
 class AttackResult extends Modifiable
   constructor: (values={}) ->
@@ -38,7 +39,7 @@ class Attack extends Modifiable
       statuses          : ['dazed','staggered','incapacitated']
 
     super modifiable, properties, values
-
+    @cumulativeStatuses = ((if _.isNumber(cs) then @statuses[cs-1] else cs) for cs in utils.makeArray(@cumulativeStatuses))
     # TODO throw error if statuses invalid
   
   @DEFAULTS_DAMAGE = 

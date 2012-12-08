@@ -1,9 +1,5 @@
 _ = require 'underscore'
-
-String::ljust = (len, char = ' ') ->
-  fill = []
-  fill[fill.length] = char while fill.length + @length < len
-  (fill.join '') + this
+_.str = require 'underscore.string'
 
 class Utils
   @rollD20: (bonus=0) ->
@@ -49,7 +45,7 @@ class Utils
 
   @formatStatBlock: (s) ->
     order = ['min', 'max', 'mean', 'median', 'variance', 'standardDeviation']
-    stats = ("#{(k+':').ljust 18} #{s[k]}" for k in order)
+    stats = ("#{_.str.pad (k+':'), 18} #{s[k]}" for k in order)
     stats.join '\n'
 
 module.exports =
